@@ -1,5 +1,6 @@
 package com.jokerslab.newsdemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity
 
         NewsCategoryFragment newsCategoryFragment = NewsCategoryFragment.newInstance(1, ALL);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.content_main, newsCategoryFragment);
+        fragmentTransaction.replace(R.id.content_main, newsCategoryFragment, NewsCategoryFragment.TAG);
         fragmentTransaction.commit();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -89,15 +90,19 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            // Handle the camera action
+            loadNewsSummaryByCategory(ALL);
         } else if (id == R.id.nav_sports) {
-
+            loadNewsSummaryByCategory(SPORTS);
         } else if (id == R.id.nav_economy) {
-
+            loadNewsSummaryByCategory(ECONOMY);
         } else if (id == R.id.nav_life_style) {
-
+            loadNewsSummaryByCategory(LIFE_STYLE);
+        } else if (id == R.id.nav_education) {
+            loadNewsSummaryByCategory(EDUCATION);
+        } else if (id == R.id.nav_foreign_affairs) {
+            loadNewsSummaryByCategory(FOREIGN_AFFAIR);
         } else if (id == R.id.nav_settings) {
-
+            startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.nav_help) {
 
         }
@@ -105,5 +110,12 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void loadNewsSummaryByCategory(@NewsCategory int newsCategory) {
+        NewsCategoryFragment fragment = (NewsCategoryFragment) getSupportFragmentManager().findFragmentByTag(NewsCategoryFragment.TAG);
+        if (fragment !=null) {
+            fragment.loadNews(newsCategory);
+        }
     }
 }

@@ -21,7 +21,7 @@ import static com.jokerslab.newsdemo.NewsCategory.ALL;
 
 public class NewsCategoryFragment extends Fragment {
 
-    private static final String TAG = NewsCategoryFragment.class.getSimpleName();
+    public static final String TAG = NewsCategoryFragment.class.getSimpleName();
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String ARG_NEWS_CATEGORY = "news-category";
     private OnListFragmentInteractionListener mListener;
@@ -59,17 +59,24 @@ public class NewsCategoryFragment extends Fragment {
 
     private void getNews(@NewsCategory int newsCategory) {
         binding.progressBarLayout.setVisibility(View.VISIBLE);
+        binding.messageLayout.setVisibility(View.GONE);
         ServerCalls.getNewsSummary(getActivity(), TAG, newsCategory, new ServerCalls.ResponseListener() {
             @Override
             public void onResponse(int code, ArrayList<News> model, String response) {
+                binding.progressBarLayout.setVisibility(View.GONE);
                 if (code == ServerCalls.NetworkResponseCode.RESULT_OK) {
-                    adapter.setData(model);
+                    if (model.size() > 0) {
+                        adapter.setData(model);
+                    } else {
+                        binding.messageTextView.setText(R.string.content_not_available);
+                        binding.messageLayout.setVisibility(View.VISIBLE);
+                    }
+
                 } else if (code == ServerCalls.NetworkResponseCode.SERVER_ERROR) {
 
                 }else if (code == ServerCalls.NetworkResponseCode.NETWORK_ERROR) {
 
                 }
-                binding.progressBarLayout.setVisibility(View.GONE);
             }
         });
     }
@@ -113,6 +120,13 @@ public class NewsCategoryFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void loadNews(@NewsCategory int newsCategory) {
+        if (this.newsCategory != newsCategory) {
+            this.newsCategory = newsCategory;
+            getNews(newsCategory);
+        }
     }
 
     /**

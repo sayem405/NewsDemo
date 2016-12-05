@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <FrameLayout
@@ -8,25 +7,41 @@
         android:layout_height="match_parent">
 
         <android.support.v7.widget.RecyclerView
-
+            android:background="#E1F5FE"
             android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <FrameLayout
+            tools:visibility="gone"
             android:id="@+id/progressBarLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white"
-            android:visibility="gone">
+            android:background="@android:color/white">
 
             <ProgressBar
-
                 style="?android:attr/progressBarStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:indeterminate="true" />
+        </FrameLayout>
+
+
+        <FrameLayout
+
+            android:id="@+id/messageLayout"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:textStyle="bold"
+                android:textSize="16dp"
+                android:layout_gravity="center"
+                android:id="@+id/messageTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </FrameLayout>
 
     </FrameLayout>
