@@ -5,6 +5,8 @@ package com.jokerslab.newsdemo;
  */
 
 public class AppConstant {
+
+    public static final String IMAGE_URL = "http://spinelbd.com/shrabon/news/";
     public static final String BASE_URL = "http://spinelbd.com/";
     public static final String METHOD_GET_NEWS_SUMMARY = "news.php";
 

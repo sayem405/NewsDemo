@@ -1,49 +1,48 @@
 package com.jokerslab.newsdemo;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.jokerslab.newsdemo.dummy.DummyContent;
+import com.jokerslab.newsdemo.databinding.FragmentNewsCategoryBinding;
 import com.jokerslab.newsdemo.dummy.DummyContent.DummyItem;
 import com.jokerslab.newsdemo.network.ServerCalls;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
-public class NewsSummaryFragment extends Fragment {
+import java.util.ArrayList;
 
-    private static final String TAG = NewsSummaryFragment.class.getSimpleName();
+import static com.jokerslab.newsdemo.NewsCategory.ALL;
 
-    // TODO: Customize parameter argument names
+
+public class NewsCategoryFragment extends Fragment {
+
+    private static final String TAG = NewsCategoryFragment.class.getSimpleName();
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
+    private static final String ARG_NEWS_CATEGORY = "news-category";
     private OnListFragmentInteractionListener mListener;
+    private MyItemRecyclerViewAdapter adapter;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-    public NewsSummaryFragment() {
+    private FragmentNewsCategoryBinding binding;
+    public NewsCategoryFragment() {
     }
 
-    // TODO: Customize parameter initialization
+
+
+    private int mColumnCount = 1;
+    private int newsCategory = ALL;
+
+
     @SuppressWarnings("unused")
-    public static NewsSummaryFragment newInstance(int columnCount) {
-        NewsSummaryFragment fragment = new NewsSummaryFragment();
+    public static NewsCategoryFragment newInstance(int columnCount, @NewsCategory int newsCategory) {
+        NewsCategoryFragment fragment = new NewsCategoryFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putInt(ARG_NEWS_CATEGORY, newsCategory);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,37 +53,50 @@ public class NewsSummaryFragment extends Fragment {
 
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            newsCategory = getArguments().getInt(ARG_NEWS_CATEGORY);
         }
+    }
 
-        ServerCalls.getNewsSummary(getActivity(), TAG, new ServerCalls.ResponseListener() {
+    private void getNews(@NewsCategory int newsCategory) {
+        binding.progressBarLayout.setVisibility(View.VISIBLE);
+        ServerCalls.getNewsSummary(getActivity(), TAG, newsCategory, new ServerCalls.ResponseListener() {
             @Override
-            public void onResponse(int code, Object model, String response) {
+            public void onResponse(int code, ArrayList<News> model, String response) {
                 if (code == ServerCalls.NetworkResponseCode.RESULT_OK) {
-                    Toast.makeText(getActivity(), "news found", Toast.LENGTH_SHORT).show();
+                    adapter.setData(model);
+                } else if (code == ServerCalls.NetworkResponseCode.SERVER_ERROR) {
+
+                }else if (code == ServerCalls.NetworkResponseCode.NETWORK_ERROR) {
+
                 }
+                binding.progressBarLayout.setVisibility(View.GONE);
             }
         });
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_item_list, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new MyItemRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_news_category, container, false);
+        Context context = binding.getRoot().getContext();
+
+        if (mColumnCount <= 1) {
+            binding.list.setLayoutManager(new LinearLayoutManager(context));
+        } else {
+            binding.list.setLayoutManager(new GridLayoutManager(context, mColumnCount));
         }
-        return view;
+        adapter = new MyItemRecyclerViewAdapter(mListener);
+        binding.list.setAdapter(adapter);
+
+        return binding.getRoot();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getNews(newsCategory);
+
+    }
 
     @Override
     public void onAttach(Context context) {

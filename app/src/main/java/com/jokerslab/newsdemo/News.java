@@ -4,32 +4,34 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by sayem on 11/16/2016.
  */
 
 public class News {
-    private String newsId;
+    private String id;
     private String title;
-    private String newsSummary;
-    private String newsSummaryNewsImageUrl;
+    private String summary;
     private String newsContent;
-    private String category;
+    private @NewsCategory int category;
+    private ArrayList<String> images;
 
     //app side
     private int viewType;
 
 
     //region setter getter
-    public String getNewsId() {
-        return newsId;
+
+
+    public String getId() {
+        return id;
     }
 
-    public void setNewsId(String newsId) {
-        this.newsId = newsId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -40,20 +42,20 @@ public class News {
         this.title = title;
     }
 
-    public String getNewsSummary() {
-        return newsSummary;
+    public String getSummary() {
+        return summary;
     }
 
-    public void setNewsSummary(String newsSummary) {
-        this.newsSummary = newsSummary;
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
-    public String getNewsSummaryNewsImageUrl() {
-        return newsSummaryNewsImageUrl;
+    public ArrayList<String> getImages() {
+        return images;
     }
 
-    public void setNewsSummaryNewsImageUrl(String newsSummaryNewsImageUrl) {
-        this.newsSummaryNewsImageUrl = newsSummaryNewsImageUrl;
+    public void setImages(ArrayList<String> images) {
+        this.images = images;
     }
 
     public String getNewsContent() {
@@ -64,21 +66,15 @@ public class News {
         this.newsContent = newsContent;
     }
 
-    /*public int getCategory() {
+    public @NewsCategory int getCategory() {
         return category;
     }
 
-    public void setCategory(int category) {
-        this.category = category;
-    }*/
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
+    public void setCategory(@NewsCategory int category) {
         this.category = category;
     }
+
+
 
     public int getViewType() {
         return viewType;
@@ -94,13 +90,18 @@ public class News {
         return new GsonBuilder().create().fromJson(jsonString, News.class);
     }
 
-    public static List<News> listFromJson(String jsonString) {
+    public static ArrayList<News> listFromJson(String jsonString) {
         Type collectionType = new TypeToken<Collection<News>>(){}.getType();
         return new GsonBuilder().create().fromJson(jsonString, collectionType);
     }
 
     public String getJsonString() {
         return new GsonBuilder().create().toJson(this);
+    }
+
+    public String getFullUrl() {
+        String url = AppConstant.IMAGE_URL + getImages().get(0);
+        return url;
     }
     //endregion
 

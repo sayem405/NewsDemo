@@ -14,6 +14,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import static com.jokerslab.newsdemo.NewsCategory.*;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -24,8 +26,9 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        NewsCategoryFragment newsCategoryFragment = NewsCategoryFragment.newInstance(1, ALL);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.content_main, new NewsSummaryFragment());
+        fragmentTransaction.replace(R.id.content_main, newsCategoryFragment);
         fragmentTransaction.commit();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

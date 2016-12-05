@@ -4,6 +4,7 @@ import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 
+import static com.jokerslab.newsdemo.NewsCategory.ALL;
 import static com.jokerslab.newsdemo.NewsCategory.ECONOMY;
 import static com.jokerslab.newsdemo.NewsCategory.EDUCATION;
 import static com.jokerslab.newsdemo.NewsCategory.FOREIGN_AFFAIR;
@@ -16,8 +17,9 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  */
 
 @Retention(SOURCE)
-@IntDef({SPORTS, ECONOMY, LIFE_STYLE, EDUCATION, FOREIGN_AFFAIR})
+@IntDef({ALL, SPORTS, ECONOMY, LIFE_STYLE, EDUCATION, FOREIGN_AFFAIR})
 public @interface NewsCategory {
+    int ALL = -1;
     int SPORTS = 1;
     int ECONOMY = 2;
     int LIFE_STYLE = 3;

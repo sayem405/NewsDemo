@@ -8,8 +8,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.jokerslab.newsdemo.AppConstant;
-import com.jokerslab.newsdemo.NewsList;
+import com.jokerslab.newsdemo.News;
+import com.jokerslab.newsdemo.NewsCategory;
 import com.jokerslab.newsdemo.Util;
+
+import java.util.ArrayList;
 
 /**
  * Created by sayem on 7/29/2016.
@@ -18,15 +21,18 @@ public class ServerCalls {
 
     private static final String TAG = ServerCalls.class.getSimpleName();
 
-    public static void getNewsSummary(Context context, String tag,final ResponseListener listener) {
+    public static void getNewsSummary(Context context, String tag, @NewsCategory int category, final ResponseListener listener) {
         String url = AppConstant.BASE_URL + AppConstant.METHOD_GET_NEWS_SUMMARY;
+        if (category != NewsCategory.ALL) {
+            url = url + "?category=" + category;
+        }
         Log.d(TAG, "get data " + url);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.d("response", response);
                 if (!Util.isEmpty(response)) {
-                    NewsList model = NewsList.fromJson(response);
+                    ArrayList<News> model = News.listFromJson(response);
                     listener.onResponse(NetworkResponseCode.RESULT_OK, model, response);
                 } else {
                     listener.onResponse(NetworkResponseCode.SERVER_ERROR, null, response);
@@ -35,6 +41,7 @@ public class ServerCalls {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, error.toString());
                 listener.onResponse(NetworkResponseCode.NETWORK_ERROR, null, null);
             }
         });
@@ -91,7 +98,7 @@ public class ServerCalls {
     }*/
 
     public static interface ResponseListener {
-        void onResponse(int code, Object model, String response);
+        void onResponse(int code, ArrayList<News> model, String response);
     }
 
     public static class NetworkResponseCode {

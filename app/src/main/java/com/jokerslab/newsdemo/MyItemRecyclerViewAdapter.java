@@ -1,12 +1,14 @@
 package com.jokerslab.newsdemo;
 
+import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
-import com.jokerslab.newsdemo.NewsSummaryFragment.OnListFragmentInteractionListener;
+import com.jokerslab.newsdemo.NewsCategoryFragment.OnListFragmentInteractionListener;
+import com.jokerslab.newsdemo.databinding.FragmentItemBinding;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -15,20 +17,23 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<BaseTypeView
     private List<News> newsList;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyItemRecyclerViewAdapter(List<News> items, OnListFragmentInteractionListener listener) {
-        newsList = items;
+    public MyItemRecyclerViewAdapter(OnListFragmentInteractionListener listener) {
         mListener = listener;
     }
 
     @Override
     public BaseTypeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_item, parent, false);
-        return new RecentNewsViewHolder(view, 1, mListener);
+        FragmentItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
+                R.layout.fragment_item, parent, false);
+        return new RecentNewsViewHolder(binding, 1, mListener);
     }
 
     @Override
     public void onBindViewHolder(BaseTypeViewHolder holder, int position) {
-
+        News news = getNewsList().get(position);
+        if (holder instanceof RecentNewsViewHolder) {
+            ((RecentNewsViewHolder)holder).bindData(news);
+        }
     }
 
 
@@ -38,6 +43,9 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<BaseTypeView
     }
 
     public List<News> getNewsList() {
+        if (newsList == null) {
+            newsList = new ArrayList<>();
+        }
         return newsList;
     }
 
@@ -49,6 +57,12 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<BaseTypeView
     public int getItemViewType(int position) {
         if (position == 0) return ViewType.COVER_NEWS;
         else return ViewType.SUMMARY_NEWS;
+    }
+
+    public void setData(ArrayList<News> data) {
+        getNewsList().clear();
+        getNewsList().addAll(data);
+        notifyDataSetChanged();
     }
 
     public class ViewType {

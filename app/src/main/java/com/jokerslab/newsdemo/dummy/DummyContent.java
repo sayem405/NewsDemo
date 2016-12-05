@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -42,7 +41,7 @@ public class DummyContent {
     private static News createDummyItem(int position) {
 
         News news = new News();
-        news.setNewsId(String.valueOf(position));
+        news.setId(String.valueOf(position));
         news.setTitle(makeDetails(position));
         return  news;
     }
