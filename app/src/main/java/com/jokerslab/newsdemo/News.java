@@ -15,7 +15,7 @@ public class News {
     private String id;
     private String title;
     private String summary;
-    private String newsContent;
+    private String newsdetails;
     private @NewsCategory int category;
     private ArrayList<String> images;
 
@@ -58,12 +58,12 @@ public class News {
         this.images = images;
     }
 
-    public String getNewsContent() {
-        return newsContent;
+    public String getNewsdetails() {
+        return newsdetails;
     }
 
-    public void setNewsContent(String newsContent) {
-        this.newsContent = newsContent;
+    public void setNewsdetails(String newsdetails) {
+        this.newsdetails = newsdetails;
     }
 
     public @NewsCategory int getCategory() {

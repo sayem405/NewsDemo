@@ -1,6 +1,7 @@
 package com.jokerslab.newsdemo;
 
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,11 +16,12 @@ import com.jokerslab.newsdemo.dummy.DummyContent.DummyItem;
 import com.jokerslab.newsdemo.network.ServerCalls;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.jokerslab.newsdemo.NewsCategory.ALL;
 
 
-public class NewsCategoryFragment extends Fragment {
+public class NewsCategoryFragment extends Fragment implements MyItemRecyclerViewAdapter.ItemClickListener {
 
     public static final String TAG = NewsCategoryFragment.class.getSimpleName();
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -28,9 +30,9 @@ public class NewsCategoryFragment extends Fragment {
     private MyItemRecyclerViewAdapter adapter;
 
     private FragmentNewsCategoryBinding binding;
+
     public NewsCategoryFragment() {
     }
-
 
 
     private int mColumnCount = 1;
@@ -57,7 +59,7 @@ public class NewsCategoryFragment extends Fragment {
         }
     }
 
-    private void getNews(@NewsCategory int newsCategory) {
+    private void getNews(@NewsCategory final int newsCategory) {
         binding.progressBarLayout.setVisibility(View.VISIBLE);
         binding.messageLayout.setVisibility(View.GONE);
         ServerCalls.getNewsSummary(getActivity(), TAG, newsCategory, new ServerCalls.ResponseListener() {
@@ -65,17 +67,20 @@ public class NewsCategoryFragment extends Fragment {
             public void onResponse(int code, ArrayList<News> model, String response) {
                 binding.progressBarLayout.setVisibility(View.GONE);
                 if (code == ServerCalls.NetworkResponseCode.RESULT_OK) {
-                    if (model.size() > 0) {
+                    if (model != null &&model.size() > 0) {
                         adapter.setData(model);
+                        mListener.storeNews(newsCategory, model);
                     } else {
                         binding.messageTextView.setText(R.string.content_not_available);
                         binding.messageLayout.setVisibility(View.VISIBLE);
                     }
 
-                } else if (code == ServerCalls.NetworkResponseCode.SERVER_ERROR) {
-
-                }else if (code == ServerCalls.NetworkResponseCode.NETWORK_ERROR) {
-
+                }else if (code == ServerCalls.NetworkResponseCode.SERVER_ERROR) {
+                    binding.messageTextView.setText(R.string.content_not_available);
+                    binding.messageLayout.setVisibility(View.VISIBLE);
+                } else {
+                    binding.messageTextView.setText(R.string.network_error_check);
+                    binding.messageLayout.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -92,28 +97,21 @@ public class NewsCategoryFragment extends Fragment {
         } else {
             binding.list.setLayoutManager(new GridLayoutManager(context, mColumnCount));
         }
-        adapter = new MyItemRecyclerViewAdapter(mListener);
+        adapter = new MyItemRecyclerViewAdapter(this);
         binding.list.setAdapter(adapter);
-
-        return binding.getRoot();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         getNews(newsCategory);
-
+        return binding.getRoot();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        /*if (context instanceof OnListFragmentInteractionListener) {
+        if (context instanceof OnListFragmentInteractionListener) {
             mListener = (OnListFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
-        }*/
+        }
     }
 
     @Override
@@ -122,11 +120,25 @@ public class NewsCategoryFragment extends Fragment {
         mListener = null;
     }
 
-    public void loadNews(@NewsCategory int newsCategory) {
+    public void loadNews(@NewsCategory int newsCategory, ArrayList<News> newses) {
         if (this.newsCategory != newsCategory) {
             this.newsCategory = newsCategory;
-            getNews(newsCategory);
+            if (newses != null && newses.size() > 0) {
+                binding.progressBarLayout.setVisibility(View.GONE);
+                binding.messageLayout.setVisibility(View.GONE);
+                adapter.setData(newses);
+            } else {
+                getNews(newsCategory);
+            }
         }
+    }
+
+    @Override
+    public void onItemClicked(View view, int viewType, int position, int action) {
+        Intent intent = new Intent(view.getContext(), NewsDetailsActivity.class);
+        intent.putExtra(NewsDetailsActivity.EXTRA_NEWS_ID, adapter.getNewsList().get(position).getId());
+
+        startActivity(intent);
     }
 
     /**
@@ -141,6 +153,6 @@ public class NewsCategoryFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void storeNews(@NewsCategory int newsCategory, ArrayList<News> newsItemList);
     }
 }

@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
     <FrameLayout
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/activity_news_details"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:context="com.jokerslab.newsdemo.NewsDetailsActivity">
 
-        <android.support.v7.widget.RecyclerView
-            android:background="#E1F5FE"
-            android:id="@+id/list"
+        <WebView
+            android:id="@+id/webView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
 
         <FrameLayout
-            android:visibility="gone"
             tools:visibility="gone"
             android:id="@+id/progressBarLayout"
             android:layout_width="match_parent"
@@ -30,7 +31,7 @@
 
 
         <FrameLayout
-            android:visibility="gone"
+
             android:id="@+id/messageLayout"
             android:background="@android:color/white"
             android:layout_width="match_parent"
@@ -44,7 +45,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </FrameLayout>
-
     </FrameLayout>
 </layout>
 

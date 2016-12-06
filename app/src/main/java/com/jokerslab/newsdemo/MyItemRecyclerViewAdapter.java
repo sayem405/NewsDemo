@@ -3,6 +3,7 @@ package com.jokerslab.newsdemo;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.jokerslab.newsdemo.NewsCategoryFragment.OnListFragmentInteractionListener;
@@ -15,9 +16,9 @@ import java.util.List;
 public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<BaseTypeViewHolder> {
 
     private List<News> newsList;
-    private final OnListFragmentInteractionListener mListener;
+    private final MyItemRecyclerViewAdapter.ItemClickListener mListener;
 
-    public MyItemRecyclerViewAdapter(OnListFragmentInteractionListener listener) {
+    public MyItemRecyclerViewAdapter(MyItemRecyclerViewAdapter.ItemClickListener listener) {
         mListener = listener;
     }
 
@@ -60,13 +61,20 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<BaseTypeView
     }
 
     public void setData(ArrayList<News> data) {
-        getNewsList().clear();
-        getNewsList().addAll(data);
+        newsList = data;
         notifyDataSetChanged();
     }
 
     public class ViewType {
         public static final int COVER_NEWS = 400;
         public static final int SUMMARY_NEWS = 787;
+    }
+
+    public interface ItemClickListener {
+        void onItemClicked(View view, int viewType, int position, int action);
+    }
+
+    public @interface ActionType {
+        int GO_DETAILS_PAGE = 1;
     }
 }

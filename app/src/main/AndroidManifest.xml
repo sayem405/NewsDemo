@@ -28,6 +28,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.jokerslab.newsdemo.MainActivity" />
         </activity>
+        <activity android:name=".NewsDetailsActivity"
+            android:label=""
+            android:parentActivityName=".MainActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.jokerslab.newsdemo.MainActivity" /></activity>
     </application>
 
 </manifest>

@@ -17,6 +17,7 @@
     <string name="str_other">Other</string>
     <string name="str_help_feedback">Help &amp; Feedback</string>
     <string name="content_not_available">No Content Available</string>
+    <string name="network_error_check">Please check your internet</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->

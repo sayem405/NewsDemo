@@ -15,10 +15,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import static com.jokerslab.newsdemo.NewsCategory.*;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,NewsCategoryFragment.OnListFragmentInteractionListener {
+
+    private HashMap<Integer,ArrayList<News>> newsCache = new HashMap<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +122,14 @@ public class MainActivity extends AppCompatActivity
     public void loadNewsSummaryByCategory(@NewsCategory int newsCategory) {
         NewsCategoryFragment fragment = (NewsCategoryFragment) getSupportFragmentManager().findFragmentByTag(NewsCategoryFragment.TAG);
         if (fragment !=null) {
-            fragment.loadNews(newsCategory);
+            fragment.loadNews(newsCategory, newsCache.get(newsCategory));
+        }
+    }
+
+    @Override
+    public void storeNews(@NewsCategory int newsCategory,  ArrayList<News> newsItemList) {
+        if (newsCache.get(newsCategory) == null) {
+            newsCache.put(newsCategory, newsItemList);
         }
     }
 }

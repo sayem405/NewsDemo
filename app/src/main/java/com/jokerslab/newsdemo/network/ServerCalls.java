@@ -48,6 +48,32 @@ public class ServerCalls {
 
         MySingleton.getInstance(context).addToRequestQueue(stringRequest);
     }
+    public static void getNewsDetails(Context context, String tag, String newID, final ResponseListenerNews listener) {
+        String url = AppConstant.BASE_URL + AppConstant.METHOD_GET_NEWS_DETAILS + newID;
+
+        Log.d(TAG, "request getNewsDetails" + url);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("response getNewsDetails", response);
+                if (!Util.isEmpty(response)) {
+                    News model = News.fromJson(response);
+                    listener.onResponse(NetworkResponseCode.RESULT_OK, model, response);
+                } else {
+                    listener.onResponse(NetworkResponseCode.SERVER_ERROR, null, response);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, error.toString());
+                listener.onResponse(NetworkResponseCode.NETWORK_ERROR, null, null);
+            }
+        });
+
+        MySingleton.getInstance(context).addToRequestQueue(stringRequest);
+    }
+
 /*
     public static void requestForBook(Context context, String tag, String user, String bookQR, final ResponseListener listener) {
         String url = "http://spinelbd.com/qr_service/getbook.php?qr=" + bookQR + "&qr_student=" + user;
@@ -99,6 +125,10 @@ public class ServerCalls {
 
     public static interface ResponseListener {
         void onResponse(int code, ArrayList<News> model, String response);
+    }
+
+    public static interface ResponseListenerNews {
+        void onResponse(int code, News model, String response);
     }
 
     public static class NetworkResponseCode {
