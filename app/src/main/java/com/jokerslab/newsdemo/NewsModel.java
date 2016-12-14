@@ -11,7 +11,7 @@ import java.util.Collection;
  * Created by sayem on 11/16/2016.
  */
 
-public class News {
+public class NewsModel {
     private String id;
     private String title;
     private String summary;
@@ -86,12 +86,12 @@ public class News {
     //endregion
 
     //region Gson conversion
-    public static News fromJson(String jsonString) {
-        return new GsonBuilder().create().fromJson(jsonString, News.class);
+    public static NewsModel fromJson(String jsonString) {
+        return new GsonBuilder().create().fromJson(jsonString, NewsModel.class);
     }
 
-    public static ArrayList<News> listFromJson(String jsonString) {
-        Type collectionType = new TypeToken<Collection<News>>(){}.getType();
+    public static ArrayList<NewsModel> listFromJson(String jsonString) {
+        Type collectionType = new TypeToken<Collection<NewsModel>>(){}.getType();
         return new GsonBuilder().create().fromJson(jsonString, collectionType);
     }
 

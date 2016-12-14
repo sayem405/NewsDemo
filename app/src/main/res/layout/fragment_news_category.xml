@@ -6,19 +6,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-            android:background="#E1F5FE"
-            android:id="@+id/list"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#E1F5FE" />
+
+        </android.support.v4.widget.SwipeRefreshLayout>
 
         <FrameLayout
-            android:visibility="gone"
-            tools:visibility="gone"
             android:id="@+id/progressBarLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white">
+            android:background="@android:color/white"
+            android:visibility="gone"
+            tools:visibility="gone">
 
             <ProgressBar
                 style="?android:attr/progressBarStyleSmall"
@@ -30,19 +37,19 @@
 
 
         <FrameLayout
-            android:visibility="gone"
             android:id="@+id/messageLayout"
-            android:background="@android:color/white"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:visibility="gone">
 
             <TextView
-                android:textStyle="bold"
-                android:textSize="16dp"
-                android:layout_gravity="center"
                 android:id="@+id/messageTextView"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="16dp"
+                android:textStyle="bold" />
         </FrameLayout>
 
     </FrameLayout>

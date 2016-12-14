@@ -1,6 +1,6 @@
 package com.jokerslab.newsdemo.dummy;
 
-import com.jokerslab.newsdemo.News;
+import com.jokerslab.newsdemo.NewsModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ public class DummyContent {
     /**
      * An array of sample (dummy) items.
      */
-    public static final List<News> ITEMS = new ArrayList<News>();
+    public static final List<NewsModel> ITEMS = new ArrayList<NewsModel>();
 
     /**
      * A map of sample (dummy) items, by ID.
@@ -34,16 +34,16 @@ public class DummyContent {
         }
     }
 
-    private static void addItem(News item) {
+    private static void addItem(NewsModel item) {
         ITEMS.add(item);
     }
 
-    private static News createDummyItem(int position) {
+    private static NewsModel createDummyItem(int position) {
 
-        News news = new News();
-        news.setId(String.valueOf(position));
-        news.setTitle(makeDetails(position));
-        return  news;
+        NewsModel newsModel = new NewsModel();
+        newsModel.setId(String.valueOf(position));
+        newsModel.setTitle(makeDetails(position));
+        return newsModel;
     }
 
     private static String makeDetails(int position) {

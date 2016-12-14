@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
@@ -12,16 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jokerslab.newsdemo.databinding.FragmentNewsCategoryBinding;
-import com.jokerslab.newsdemo.dummy.DummyContent.DummyItem;
 import com.jokerslab.newsdemo.network.ServerCalls;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.jokerslab.newsdemo.NewsCategory.ALL;
 
 
-public class NewsCategoryFragment extends Fragment implements MyItemRecyclerViewAdapter.ItemClickListener {
+public class NewsCategoryFragment extends Fragment implements MyItemRecyclerViewAdapter.ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG = NewsCategoryFragment.class.getSimpleName();
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -30,6 +29,9 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
     private MyItemRecyclerViewAdapter adapter;
 
     private FragmentNewsCategoryBinding binding;
+    private int totalCount;
+    private int startCount;
+    private static final int BUCKET_SIZE = 5;
 
     public NewsCategoryFragment() {
     }
@@ -59,33 +61,6 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
         }
     }
 
-    private void getNews(@NewsCategory final int newsCategory) {
-        binding.progressBarLayout.setVisibility(View.VISIBLE);
-        binding.messageLayout.setVisibility(View.GONE);
-        ServerCalls.getNewsSummary(getActivity(), TAG, newsCategory, new ServerCalls.ResponseListener() {
-            @Override
-            public void onResponse(int code, ArrayList<News> model, String response) {
-                binding.progressBarLayout.setVisibility(View.GONE);
-                if (code == ServerCalls.NetworkResponseCode.RESULT_OK) {
-                    if (model != null &&model.size() > 0) {
-                        adapter.setData(model);
-                        mListener.storeNews(newsCategory, model);
-                    } else {
-                        binding.messageTextView.setText(R.string.content_not_available);
-                        binding.messageLayout.setVisibility(View.VISIBLE);
-                    }
-
-                }else if (code == ServerCalls.NetworkResponseCode.SERVER_ERROR) {
-                    binding.messageTextView.setText(R.string.content_not_available);
-                    binding.messageLayout.setVisibility(View.VISIBLE);
-                } else {
-                    binding.messageTextView.setText(R.string.network_error_check);
-                    binding.messageLayout.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -99,9 +74,63 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
         }
         adapter = new MyItemRecyclerViewAdapter(this);
         binding.list.setAdapter(adapter);
-        getNews(newsCategory);
+        binding.list.addOnScrollListener(new EndlessScrollListener() {
+            @Override
+            public void onLoadMore() {
+                if (startCount < totalCount) {
+                    startCount = startCount + BUCKET_SIZE;
+                    getNews(newsCategory, AddingType.END);
+                }
+            }
+        });
+        binding.swipeRefreshLayout.setOnRefreshListener(this);
+        binding.swipeRefreshLayout.setColorSchemeColors(new int[]{R.color.orange, R.color.blue, R.color.green});
+        getNews(newsCategory, AddingType.NEW);
         return binding.getRoot();
     }
+
+    private void getNews(@NewsCategory final int newsCategory, @AddingType final int addingType) {
+
+        if (addingType == AddingType.NEW) {
+            totalCount = 0;
+            startCount = 0;
+        }
+        //binding.progressBarLayout.setVisibility(View.VISIBLE);
+        binding.messageLayout.setVisibility(View.GONE);
+        ServerCalls.getNewsSummary(getActivity(), TAG, newsCategory, startCount, BUCKET_SIZE, new ServerCalls.ResponseListenerNewsList() {
+            @Override
+            public void onResponse(int code, NewsList model, String response) {
+                binding.progressBarLayout.setVisibility(View.GONE);
+                binding.swipeRefreshLayout.setRefreshing(false);
+                if (code == ServerCalls.NetworkResponseCode.RESULT_OK) {
+                    if (addingType == AddingType.NEW) {
+                        if (model != null && model.getNewsModel().size() > 0) {
+                            totalCount = model.getCount();
+                            adapter.setData(model.getNewsModel());
+                            mListener.storeNews(newsCategory, adapter.getNewsModelList());
+                        } else {
+                            binding.messageTextView.setText(R.string.content_not_available);
+                            binding.messageLayout.setVisibility(View.VISIBLE);
+                        }
+
+                    } else if (addingType == AddingType.END) {
+                        if (model != null && model.getNewsModel().size() > 0) {
+                            adapter.addNewsList(model.getNewsModel());
+                            mListener.storeNews(newsCategory, adapter.getNewsModelList());
+                        }
+                    }
+
+                } else if (code == ServerCalls.NetworkResponseCode.SERVER_ERROR) {
+                    binding.messageTextView.setText(R.string.content_not_available);
+                    binding.messageLayout.setVisibility(View.VISIBLE);
+                } else {
+                    binding.messageTextView.setText(R.string.network_error_check);
+                    binding.messageLayout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+
 
     @Override
     public void onAttach(Context context) {
@@ -120,7 +149,7 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
         mListener = null;
     }
 
-    public void loadNews(@NewsCategory int newsCategory, ArrayList<News> newses) {
+    public void loadNews(@NewsCategory int newsCategory, ArrayList<NewsModel> newses) {
         if (this.newsCategory != newsCategory) {
             this.newsCategory = newsCategory;
             if (newses != null && newses.size() > 0) {
@@ -128,7 +157,8 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
                 binding.messageLayout.setVisibility(View.GONE);
                 adapter.setData(newses);
             } else {
-                getNews(newsCategory);
+                binding.swipeRefreshLayout.setRefreshing(true);
+                getNews(newsCategory, AddingType.NEW);
             }
         }
     }
@@ -136,9 +166,16 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
     @Override
     public void onItemClicked(View view, int viewType, int position, int action) {
         Intent intent = new Intent(view.getContext(), NewsDetailsActivity.class);
-        intent.putExtra(NewsDetailsActivity.EXTRA_NEWS_ID, adapter.getNewsList().get(position).getId());
+        intent.putExtra(NewsDetailsActivity.EXTRA_NEWS_ID, adapter.getNewsModelList().get(position).getId());
 
         startActivity(intent);
+    }
+
+    @Override
+    public void onRefresh() {
+        totalCount = 0;
+        startCount = 0;
+        getNews(newsCategory, AddingType.NEW);
     }
 
     /**
@@ -153,6 +190,6 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void storeNews(@NewsCategory int newsCategory, ArrayList<News> newsItemList);
+        void storeNews(@NewsCategory int newsCategory, ArrayList<NewsModel> newsModelItemList);
     }
 }

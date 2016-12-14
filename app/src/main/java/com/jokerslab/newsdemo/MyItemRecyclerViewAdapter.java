@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.jokerslab.newsdemo.NewsCategoryFragment.OnListFragmentInteractionListener;
 import com.jokerslab.newsdemo.databinding.FragmentItemBinding;
 
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import java.util.List;
 
 public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<BaseTypeViewHolder> {
 
-    private List<News> newsList;
+    private ArrayList<NewsModel> newsModelList;
     private final MyItemRecyclerViewAdapter.ItemClickListener mListener;
 
     public MyItemRecyclerViewAdapter(MyItemRecyclerViewAdapter.ItemClickListener listener) {
@@ -31,27 +30,32 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<BaseTypeView
 
     @Override
     public void onBindViewHolder(BaseTypeViewHolder holder, int position) {
-        News news = getNewsList().get(position);
+        NewsModel newsModel = getNewsModelList().get(position);
         if (holder instanceof RecentNewsViewHolder) {
-            ((RecentNewsViewHolder)holder).bindData(news);
+            ((RecentNewsViewHolder) holder).bindData(newsModel);
         }
     }
 
 
     @Override
     public int getItemCount() {
-        return newsList == null ? 0 : newsList.size();
+        return newsModelList == null ? 0 : newsModelList.size();
     }
 
-    public List<News> getNewsList() {
-        if (newsList == null) {
-            newsList = new ArrayList<>();
+    public ArrayList<NewsModel> getNewsModelList() {
+        if (newsModelList == null) {
+            newsModelList = new ArrayList<>();
         }
-        return newsList;
+        return newsModelList;
     }
 
-    public void setNewsList(List<News> newsList) {
-        this.newsList = newsList;
+    public void setNewsModelList(ArrayList<NewsModel> newsModelList) {
+        this.newsModelList = newsModelList;
+    }
+
+    public void addNewsList(List<NewsModel> newsModelList) {
+        getNewsModelList().addAll(newsModelList);
+        notifyItemMoved(getNewsModelList().size() + 1, getNewsModelList().size() - newsModelList.size());
     }
 
     @Override
@@ -60,8 +64,8 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<BaseTypeView
         else return ViewType.SUMMARY_NEWS;
     }
 
-    public void setData(ArrayList<News> data) {
-        newsList = data;
+    public void setData(ArrayList<NewsModel> data) {
+        newsModelList = data;
         notifyDataSetChanged();
     }
 

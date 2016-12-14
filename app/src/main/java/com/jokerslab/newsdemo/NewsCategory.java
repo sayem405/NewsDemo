@@ -19,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 @Retention(SOURCE)
 @IntDef({ALL, SPORTS, ECONOMY, LIFE_STYLE, EDUCATION, FOREIGN_AFFAIR})
 public @interface NewsCategory {
-    int ALL = -1;
+    int ALL = 500;
     int SPORTS = 1;
     int ECONOMY = 2;
     int LIFE_STYLE = 3;

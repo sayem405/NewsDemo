@@ -33,7 +33,7 @@ public class NewsDetailsActivity extends AppCompatActivity {
         binding.messageLayout.setVisibility(View.GONE);
         ServerCalls.getNewsDetails(this, TAG, newsID, new ServerCalls.ResponseListenerNews() {
             @Override
-            public void onResponse(int code, News model, String response) {
+            public void onResponse(int code, NewsModel model, String response) {
                 binding.progressBarLayout.setVisibility(View.GONE);
 
                 if (code == ServerCalls.NetworkResponseCode.RESULT_OK) {

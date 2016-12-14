@@ -16,6 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.jokerslab.newsdemo.network.ServerCalls;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -27,9 +29,9 @@ import static com.jokerslab.newsdemo.NewsCategory.LIFE_STYLE;
 import static com.jokerslab.newsdemo.NewsCategory.SPORTS;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,NewsCategoryFragment.OnListFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener, NewsCategoryFragment.OnListFragmentInteractionListener {
 
-    private HashMap<Integer,ArrayList<News>> newsCache = new HashMap<>();
+    private HashMap<Integer, ArrayList<NewsModel>> newsCache = new HashMap<>();
     private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
@@ -44,6 +46,8 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
+        saveTokenToServer();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -53,7 +57,7 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.commit();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener( new View.OnClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -69,6 +73,45 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        ArrayList<NewsModel> list = new ArrayList<>();
+
+        NewsModel newsModel = new NewsModel();
+        newsModel.setTitle("dfsd");
+        newsModel.setCategory(NewsCategory.ECONOMY);
+        list.add(newsModel);
+
+        newsModel = new NewsModel();
+        newsModel.setTitle("dfsd");
+        newsModel.setCategory(NewsCategory.ECONOMY);
+        list.add(newsModel);
+
+
+        newsModel = new NewsModel();
+        newsModel.setTitle("dfsd");
+        newsModel.setCategory(NewsCategory.ECONOMY);
+        list.add(newsModel);
+
+        NewsList newsList = new NewsList();
+        newsList.setNewsModel(list);
+        newsList.setCount(5);
+
+        String s = newsList.getJsonString();
+        Log.d(TAG, s);
+    }
+
+    private void saveTokenToServer() {
+        String token = Util.getFromPref(this, getString(R.string.token_key), null);
+        if (!Util.isEmpty(token)) {
+            ServerCalls.saveToken(this, TAG, token, new ServerCalls.ResponseListener() {
+                @Override
+                public void onResponse(int code, ArrayList<NewsModel> model, String response) {
+                    if (code == ServerCalls.NetworkResponseCode.RESULT_OK) {
+                        Util.saveToPref(MainActivity.this, getString(R.string.token_key), "");
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -134,15 +177,15 @@ public class MainActivity extends AppCompatActivity
 
     public void loadNewsSummaryByCategory(@NewsCategory int newsCategory) {
         NewsCategoryFragment fragment = (NewsCategoryFragment) getSupportFragmentManager().findFragmentByTag(NewsCategoryFragment.TAG);
-        if (fragment !=null) {
+        if (fragment != null) {
             fragment.loadNews(newsCategory, newsCache.get(newsCategory));
         }
     }
 
     @Override
-    public void storeNews(@NewsCategory int newsCategory,  ArrayList<News> newsItemList) {
+    public void storeNews(@NewsCategory int newsCategory, ArrayList<NewsModel> newsModelItemList) {
         if (newsCache.get(newsCategory) == null) {
-            newsCache.put(newsCategory, newsItemList);
+            newsCache.put(newsCategory, newsModelItemList);
         }
     }
 }

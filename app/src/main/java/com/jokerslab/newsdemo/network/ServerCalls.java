@@ -11,8 +11,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.jokerslab.newsdemo.AppConstant;
-import com.jokerslab.newsdemo.News;
+import com.jokerslab.newsdemo.NewsModel;
 import com.jokerslab.newsdemo.NewsCategory;
+import com.jokerslab.newsdemo.NewsList;
 import com.jokerslab.newsdemo.Util;
 
 import java.util.ArrayList;
@@ -25,18 +26,17 @@ public class ServerCalls {
 
     private static final String TAG = ServerCalls.class.getSimpleName();
 
-    public static void getNewsSummary(Context context, String tag, @NewsCategory int category, final ResponseListener listener) {
+    public static void getNewsSummary(Context context, String tag, @NewsCategory int category, int startCount, int bucket, final ResponseListenerNewsList listener) {
         String url = AppConstant.BASE_URL + AppConstant.METHOD_GET_NEWS_SUMMARY;
-        if (category != NewsCategory.ALL) {
-            url = url + "?category=" + category;
-        }
+        url = url + "?category=" + category;
+        url = url + "&start=" + startCount + "&reqcount=" + bucket;
         Log.d(TAG, "get data " + url);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.d("response", response);
                 if (!Util.isEmpty(response)) {
-                    ArrayList<News> model = News.listFromJson(response);
+                    NewsList model = NewsList.fromJson(response);
                     listener.onResponse(NetworkResponseCode.RESULT_OK, model, response);
                 } else {
                     listener.onResponse(NetworkResponseCode.SERVER_ERROR, null, response);
@@ -52,6 +52,7 @@ public class ServerCalls {
 
         MySingleton.getInstance(context).addToRequestQueue(stringRequest);
     }
+
     public static void getNewsDetails(Context context, String tag, String newID, final ResponseListenerNews listener) {
         String url = AppConstant.BASE_URL + AppConstant.METHOD_GET_NEWS_DETAILS + newID;
 
@@ -61,7 +62,7 @@ public class ServerCalls {
             public void onResponse(String response) {
                 Log.d("response getNewsDetails", response);
                 if (!Util.isEmpty(response)) {
-                    News model = News.fromJson(response);
+                    NewsModel model = NewsModel.fromJson(response);
                     listener.onResponse(NetworkResponseCode.RESULT_OK, model, response);
                 } else {
                     listener.onResponse(NetworkResponseCode.SERVER_ERROR, null, response);
@@ -74,7 +75,7 @@ public class ServerCalls {
                 listener.onResponse(NetworkResponseCode.NETWORK_ERROR, null, null);
             }
         }
-        ){
+        ) {
             @Override
             protected Response<String> parseNetworkResponse(NetworkResponse response) {
                 String jsonString = new String(response.data);
@@ -85,13 +86,43 @@ public class ServerCalls {
         MySingleton.getInstance(context).addToRequestQueue(stringRequest);
     }
 
+    public static void saveToken(Context context, String tag, String token, final ResponseListener listener) {
+        String url = AppConstant.BASE_URL + AppConstant.METHOD_GET_TOKEN + token;
+
+        Log.d(TAG, "request saveToken" + url);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("response saveToken", response);
+                if (!Util.isEmpty(response) && "DONE".equals(response)) {
+                    listener.onResponse(NetworkResponseCode.RESULT_OK, null, response);
+                } else {
+                    listener.onResponse(NetworkResponseCode.SERVER_ERROR, null, response);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, error.toString());
+                listener.onResponse(NetworkResponseCode.NETWORK_ERROR, null, null);
+            }
+        }
+        );
+
+        MySingleton.getInstance(context).addToRequestQueue(stringRequest);
+    }
+
 
     public static interface ResponseListener {
-        void onResponse(int code, ArrayList<News> model, String response);
+        void onResponse(int code, ArrayList<NewsModel> model, String response);
     }
 
     public static interface ResponseListenerNews {
-        void onResponse(int code, News model, String response);
+        void onResponse(int code, NewsModel model, String response);
+    }
+
+    public static interface ResponseListenerNewsList {
+        void onResponse(int code, NewsList model, String response);
     }
 
     public static class NetworkResponseCode {
