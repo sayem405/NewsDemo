@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity
         list.add(newsModel);
 
         NewsList newsList = new NewsList();
-        newsList.setNewsModel(list);
+        newsList.setNews(list);
         newsList.setCount(5);
 
         String s = newsList.getJsonString();

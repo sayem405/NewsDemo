@@ -3,6 +3,7 @@ package com.jokerslab.newsdemo;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -39,6 +40,8 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
 
     private int mColumnCount = 1;
     private int newsCategory = ALL;
+    private int dividerHeight;
+
 
 
     @SuppressWarnings("unused")
@@ -59,6 +62,8 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
             newsCategory = getArguments().getInt(ARG_NEWS_CATEGORY);
         }
+
+        dividerHeight = (int) getResources().getDimension(R.dimen.devider_height);
     }
 
     @Override
@@ -78,13 +83,14 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
             @Override
             public void onLoadMore() {
                 if (startCount < totalCount) {
-                    startCount = startCount + BUCKET_SIZE;
+                    startCount = startCount + BUCKET_SIZE + 1;
                     getNews(newsCategory, AddingType.END);
                 }
             }
         });
+
         binding.swipeRefreshLayout.setOnRefreshListener(this);
-        binding.swipeRefreshLayout.setColorSchemeColors(new int[]{R.color.orange, R.color.blue, R.color.green});
+        binding.swipeRefreshLayout.setColorSchemeColors(Color.RED, Color.YELLOW, Color.BLUE, Color.DKGRAY);
         getNews(newsCategory, AddingType.NEW);
         return binding.getRoot();
     }
@@ -104,19 +110,21 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
                 binding.swipeRefreshLayout.setRefreshing(false);
                 if (code == ServerCalls.NetworkResponseCode.RESULT_OK) {
                     if (addingType == AddingType.NEW) {
-                        if (model != null && model.getNewsModel().size() > 0) {
+                        if (model != null && model.getNews().size() > 0) {
                             totalCount = model.getCount();
-                            adapter.setData(model.getNewsModel());
-                            mListener.storeNews(newsCategory, adapter.getNewsModelList());
+                            adapter.setData(model.getNews());
+                            if (mListener != null)
+                                mListener.storeNews(newsCategory, adapter.getNewsModelList());
                         } else {
                             binding.messageTextView.setText(R.string.content_not_available);
                             binding.messageLayout.setVisibility(View.VISIBLE);
                         }
 
                     } else if (addingType == AddingType.END) {
-                        if (model != null && model.getNewsModel().size() > 0) {
-                            adapter.addNewsList(model.getNewsModel());
-                            mListener.storeNews(newsCategory, adapter.getNewsModelList());
+                        if (model != null && model.getNews().size() > 0) {
+                            adapter.addNewsList(model.getNews());
+                            if (mListener != null)
+                                mListener.storeNews(newsCategory, adapter.getNewsModelList());
                         }
                     }
 
@@ -157,6 +165,7 @@ public class NewsCategoryFragment extends Fragment implements MyItemRecyclerView
                 binding.messageLayout.setVisibility(View.GONE);
                 adapter.setData(newses);
             } else {
+                adapter.setData(null);
                 binding.swipeRefreshLayout.setRefreshing(true);
                 getNews(newsCategory, AddingType.NEW);
             }

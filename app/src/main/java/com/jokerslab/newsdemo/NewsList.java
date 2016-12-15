@@ -12,28 +12,28 @@ import java.util.Collection;
  */
 
 public class NewsList {
-    private ArrayList<NewsModel> NewsModel;
-    private int count;
+    private ArrayList<NewsModel> News;
+    private int Count;
 
 
 
-    public ArrayList<NewsModel> getNewsModel() {
-        if (NewsModel == null) {
-            NewsModel = new ArrayList<>();
+    public ArrayList<NewsModel> getNews() {
+        if (News == null) {
+            News = new ArrayList<>();
         }
-        return NewsModel;
+        return News;
     }
 
-    public void setNewsModel(ArrayList<NewsModel> newsModel) {
-        NewsModel = newsModel;
+    public void setNews(ArrayList<NewsModel> news) {
+        News = news;
     }
 
     public int getCount() {
-        return count;
+        return Count;
     }
 
     public void setCount(int count) {
-        this.count = count;
+        this.Count = count;
     }
 
 
